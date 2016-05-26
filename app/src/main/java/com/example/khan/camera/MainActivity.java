@@ -13,6 +13,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -77,19 +78,25 @@ public class MainActivity extends AppCompatActivity {
 
 //  getCamera
 
-    public static Camera getCameraInstance()
+    public Camera getCameraInstance()
     {
-        Camera c = null;
+        int cameraCount = 0;
+        Camera cam = null;
+        Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+        cameraCount = Camera.getNumberOfCameras();
+        for (int camIdx = 0; camIdx < cameraCount; camIdx++) {
+            Camera.getCameraInfo(camIdx, cameraInfo);
+            if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                try {
+                    cam = Camera.open(camIdx);
+                } catch (RuntimeException e) {
+                    Log.e(TAG, "Camera failed to open: " + e.getLocalizedMessage());
+                }
+            }
+        }
 
-        try
-        {
-            c = Camera.open();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        return c;
+        return cam;
+
     }
 
 
@@ -155,6 +162,8 @@ public class MainActivity extends AppCompatActivity {
     public void getPhoto(View view) {
 
         mCamera.takePicture(null, null, mPicture);
+
+        Toast.makeText(this,"Your pic has been taken successfully.",Toast.LENGTH_LONG).show();
 
     }
 
